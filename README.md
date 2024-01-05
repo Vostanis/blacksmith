@@ -8,7 +8,7 @@ get_vec() is a useful fn that allows for async get requests of urls in a Vec<&st
     ];
     get_vec(urls, "./src", 2).await;
 
-This would retrieve both files and download them to the "src/" directory.
+This would retrieve both files in the urls vec, and download them to the "src/" directory, using 2 async threads.
 
 The unsafety comes from the macros; using string as an initial intro to how they're built.
 Syn parsing to do.
