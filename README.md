@@ -1,6 +1,6 @@
 # THIS BUILD IS UNSAFE
 
-get_vec() is a useful fn that allows for an async get requests of urls in a Vec<&str> form, e.g.
+get_vec() is a useful fn that allows for async get requests of urls in a Vec<&str> form, e.g.
 
     let urls = vec![
         "www.endpoint_1.xml",
