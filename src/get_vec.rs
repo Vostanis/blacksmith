@@ -1,14 +1,13 @@
-use blacksmith_macros::*;
+use blacksmith_macros::collect;
 use futures::StreamExt;
 
-#[stamped_for_collection]
+#[collect]
 pub async fn get_vec(urls: Vec<&str>, save_path: &str, threads: usize) {
     let client = reqwest::Client::new();
     futures::stream::iter(urls.into_iter().map(|url| {
         let future = client
             .get(url)
             .send();
-
         async move {            
             match future.await {
                 Ok(resp) => {
@@ -28,17 +27,7 @@ pub async fn get_vec(urls: Vec<&str>, save_path: &str, threads: usize) {
     .await;
 }
 
-// macro_rules! header(
-//     ($name:literal, $val:literal) => {},
-//         let future = client
-//             .get(url)
-//     () => {
-//         let future = client.get(url).send();
-//     }
-//     _ => panic!("Incorrect input to header!()"),
-// )
-
-#[stamped_for_collection]
+#[collect]
 pub async fn download_url_file(url: &str, bytes: bytes::Bytes, save_path: &str) {
     if let Some(file) = std::path::Path::new(&url).file_name() {
         let file_path = std::path::Path::new(save_path).join(file);
