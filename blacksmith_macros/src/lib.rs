@@ -28,49 +28,30 @@ pub fn header(attrs: TokenStream, item: TokenStream) -> TokenStream {
     //      2. sequential call of get_vec() => use the item
     //          |_ else ...
     //
-    // parse function and insert .header(name, value)
+    // parse function and insert .header(name, value) 
+    let fn_name = find_fn_name(item.to_string());
+    println!("{fn_name}");
 
-    fn find_fn_name(fn_string: String) -> String {
-        let phrases: Vec<&str> = item_str.split("::").collect();
-        for phrase in phrases {
-            match phrase {
-               
-            }
-        }
-        // for phrase in phrases.iter() {
-        //     if phrase.contains("(") && phrase.contains(")") {
-        //         let bracket = phrase.find("(").expect("Couldn't find opening parenthesis") - 1;
-        //         &phrase.trim()[0..bracket]
-        //     } else {
-        //         ""
-        //     };
-        // };
-        ident
+    // match the item str to one collected
+    guarantee_json_file("collected_fns.json");
+    let collected_fns: Vec<FnStr> = read_json_file::<Vec<FnStr>>("./collected_fns.json");
+    // println!("{collected_fns:#?}");
+    let mut fn_str = String::new();
+    for func in collected_fns {
+        if func.fn_name == fn_name {
+            fn_str = func.item_str;
+            break;
+        } else {};
     }
 
-    let fn_name = {
-        let item_str = item.to_string();
-        let phrases: Vec<&str> = item_str.split("::").collect();
+    if fn_str.is_empty() {
+        panic!("Function not found - is the function definiton overheaded by \"#[collect]\"?");
+    } else {
+        // edit the string with .header(args)
+        println!("THIS IS OKAY. PLEASE FINISH:\nFILE {} LINE {}", file!(), line!());
+    }
 
-        // find the final phrase in eg::eg::example().await => example().await is the final
-        // phrase
-        // let mut ident = "";
-        let ident = for phrase in phrases.iter() {
-            if phrase.contains("(") && phrase.contains(")") {
-                let bracket = phrase.find("(").expect("Couldn't find opening parenthesis") - 1;
-                &phrase.trim()[0..bracket]
-            } else {
-                ""
-            };
-        };
-        ident
-    };
-    println!("{fn_name:?}"); // DIDN'T WORK
-
-    guarantee_json_file("collected_fns.json");
-    let collect_fns: Vec<FnStr> = read_json_file::<Vec<FnStr>>("./collected_fns.json");
-    println!("{collect_fns:#?}");
-
+    // println!("STRING RIGHT NOW:\n{fn_str}");
     item
     // return new item fn with call to fn
     // quote! { 
@@ -102,23 +83,18 @@ pub fn collect(_attrs: TokenStream, item: TokenStream) -> TokenStream {
             item_str: item_str,
         }
     };
-    
-    // println!("{func:#?}");
-    // unsafe { STAMPED_FNS.push(func); }
+
     unsafe {
         // delete the file
         if STAMP_COUNTER == 0 { 
             use std::fs::OpenOptions;
             use std::io::{Seek, SeekFrom, Write};
-
             let _ = std::fs::remove_file("collected_fns.json");
-
             let mut file = OpenOptions::new()
                 .create(true)
                 .write(true)
                 .open("collected_fns.json")
                 .expect("Unable to open file");
-
             file.seek(SeekFrom::Start(0)).expect("Unable to seek beginning of file");
             file.write_all("[".as_bytes()).expect("Failed to write bytes to file");
         }
@@ -127,9 +103,7 @@ pub fn collect(_attrs: TokenStream, item: TokenStream) -> TokenStream {
     // insert FnStr
     append_json_file("collected_fns.json", func);
     unsafe { STAMP_COUNTER += 1; }
-
-    // return the item (unedited)
-    item
+    item // return the item (unedited)
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -197,4 +171,18 @@ fn expect_punct(lex: &mut impl Iterator<Item=TokenTree>, ch: char) -> Punct {
         Some(_token) => panic!("Expected punct got something else"),
         None => panic!("Expected punct but got nothing")
     }
+}
+
+fn find_fn_name(fn_string: String) -> String {
+    let phrases: Vec<&str> = fn_string.split("::").collect();
+    let mut ans: String = String::new();
+    for phrase in phrases {
+        if phrase.contains("(") && phrase.contains(")") {
+            let bracket = phrase.find("(")
+               .expect("Couldn't find parenthesis");
+            ans = phrase.trim()[0..bracket].to_string();
+            break;
+        } else {};
+    }
+    ans
 }
