@@ -2,3 +2,4 @@ target/
 blacksmith_macros/target/
 
 src/company_tickers.json
+/collected_fns.json
