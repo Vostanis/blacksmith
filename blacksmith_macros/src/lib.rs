@@ -4,11 +4,10 @@ use proc_macro::{TokenStream, TokenTree, Punct, Literal};
 use serde::{Serialize, Deserialize};
 
 static mut STAMPED_FNS: Vec<FnStr> = Vec::new();
-static COLLECTED_FNS: String = String::new("./src/collected_fns.json");
+static COLLECTED_FNS_FILE: &str = "./src/collected_fns.json";
 
 #[proc_macro_attribute]
 pub fn header(attrs: TokenStream, item: TokenStream) -> TokenStream {
-
     // expected attribute-input should be in the form: #[header(str1, str2)]
     // parse attribute arguments
     let _header: String = { 
@@ -30,6 +29,7 @@ pub fn header(attrs: TokenStream, item: TokenStream) -> TokenStream {
     //          |_ else ...
     //
     // parse function and insert .header(name, value)
+
     fn find_fn_name(fn_string: String) -> String {
         let phrases: Vec<&str> = item_str.split("::").collect();
         for phrase in phrases {
