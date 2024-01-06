@@ -2,12 +2,13 @@
 #[allow(dead_code)]
 #[allow(unused_imports)]
 
-use blacksmith::get_vec::get_vec;
+use blacksmith::get_vec::*;
 use blacksmith_macros::*;
+use futures::StreamExt;
 
 #[tokio::main]
 async fn main() { 
-    let _urls = vec![
+    let urls = vec![
         "https://www.sec.gov/files/company_tickers.json",
         "https://ww.sec.gov/files/company_tickers.json",
         "https://www.sec.gov/files/company_tickers.json",
@@ -17,5 +18,5 @@ async fn main() {
     // get_vec(urls, "./src", 1).await;
     
     #[header("This", "that")]
-    get_vec(_urls, "./src", 1).await;
+    get_vec(urls, "./src", 1).await;
 }

@@ -1,16 +1,13 @@
 use proc_macro::{TokenStream, TokenTree, Punct, Literal};
-// use quote::quote;
-// use syn::{parse2};
+use quote::quote;
+use syn::{parse_str, ItemFn, Expr};
 use serde::{Serialize, Deserialize};
-
-static mut STAMPED_FNS: Vec<FnStr> = Vec::new();
-static COLLECTED_FNS_FILE: &str = "./src/collected_fns.json";
 
 #[proc_macro_attribute]
 pub fn header(attrs: TokenStream, item: TokenStream) -> TokenStream {
     // expected attribute-input should be in the form: #[header(str1, str2)]
     // parse attribute arguments
-    let _header: String = { 
+    let header: String = { 
         let mut attrs_iter = attrs.into_iter();
         let name = expect_literal(&mut attrs_iter).to_string();
         let _ = expect_punct(&mut attrs_iter, ',');
@@ -18,24 +15,13 @@ pub fn header(attrs: TokenStream, item: TokenStream) -> TokenStream {
         format!(".header({}, {})", name, value)
     };
 
-    // find and retrieve file of function called; as text
-    // replace any ".send()" with ".header(#name, #value).send()"
-    // module_path!() //run with empty brackets
-    // include_str!("file_name.txt")
-    // 2 paths:
-    //      1. initial call of get_vec() => use the static str
-    //          |_ if there is no mention of "pub async fn"
-    //      2. sequential call of get_vec() => use the item
-    //          |_ else ...
-    //
-    // parse function and insert .header(name, value) 
-    let fn_name = find_fn_name(item.to_string());
-    println!("{fn_name}");
+    // find fn_name from original item
+    let mut item_str = item.to_string();
+    let fn_name = find_fn_name(item_str.clone());
 
     // match the item str to one collected
     guarantee_json_file("collected_fns.json");
     let collected_fns: Vec<FnStr> = read_json_file::<Vec<FnStr>>("./collected_fns.json");
-    // println!("{collected_fns:#?}");
     let mut fn_str = String::new();
     for func in collected_fns {
         if func.fn_name == fn_name {
@@ -44,28 +30,31 @@ pub fn header(attrs: TokenStream, item: TokenStream) -> TokenStream {
         } else {};
     }
 
+    // if fn_str did not match then panic, else insert the new .header()
     if fn_str.is_empty() {
         panic!("Function not found - is the function definiton overheaded by \"#[collect]\"?");
     } else {
-        // edit the string with .header(args)
         println!("THIS IS OKAY. PLEASE FINISH:\nFILE {} LINE {}", file!(), line!());
+        let send_index = fn_str.find(".send()").expect("Did not find reqwest send");
+        fn_str.insert_str(send_index, &header);
+        println!("{fn_str}");
     }
 
-    // println!("STRING RIGHT NOW:\n{fn_str}");
-    item
-    // return new item fn with call to fn
-    // quote! { 
-    //     // #modified_itemfn
-    //     // get_vec(urls, "./src", 3).await;
-    //     todo!()
-    // }.into()
+    // parse and return new item
+    let modified_fn = parse_str::<ItemFn>(&fn_str).unwrap();
+    let modified_item = parse_str::<Expr>(&item_str.to_string()).unwrap();
+    println!("{item_str}");
+    quote! { 
+        #modified_fn;
+        #modified_item
+        // get_vec(urls, "./src", 3).await;
+        // todo!()
+    }.into()
 }
 
 static mut STAMP_COUNTER: u16 = 0;
-
 #[proc_macro_attribute]
 pub fn collect(_attrs: TokenStream, item: TokenStream) -> TokenStream {
-
     // find func name, and store with function
     let func: FnStr = {
         let item_str = item.to_string();
