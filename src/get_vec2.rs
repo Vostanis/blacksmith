@@ -1,5 +1,4 @@
-use thiserror::Error;
-// use std::{error::Error, fmt::Debug};
+// use thiserror::Error;
 
 pub struct Runner {
     pub client_builder: reqwest::ClientBuilder,
@@ -14,7 +13,12 @@ impl Runner {
         }
     }
 
-    pub async fn get_vec(&self, urls: Vec<&str>, save_path: &str, threads:usize) {
+    pub async fn get_vec(
+        &self, 
+        urls: Vec<&str>, 
+        save_path: &str, 
+        threads:usize
+    ) {
         use futures::StreamExt;
 
         let client = reqwest::ClientBuilder::new()
@@ -43,35 +47,7 @@ impl Runner {
         .buffer_unordered(threads)
         .collect::<Vec<()>>()
         .await;
-    }    
-
-    // pub async fn get_vec2(
-    // 
-    //     &self,
-    //     urls: Vec<&str>, 
-    //     save_path: &str, 
-    //     threads: usize
-    // ) -> Result<(), RunnerError> {
-    //     use futures::StreamExt;
-    //
-    //     let client = reqwest::ClientBuilder::new()
-    //         .deafault_headers(self.headers.clone())
-    //         .build()?;
-    //
-    //     futures::stream::iter(urls.into_iter().map(|url| {
-    //         async move {
-    //             let future = client
-    //                 .get(url)
-    //                 .send()
-    //                 .await?
-    //                 .bytes()
-    //                 .await?;
-    //         }
-    //     }))
-    //     .buffer_unordered(threads)
-    //     .collect::<Vec<()>>()
-    //     .await;
-    // }
+    } 
 
     pub async fn download_url(
         url: &str, 
@@ -89,12 +65,12 @@ impl Runner {
 // ensure a directory exists; create it if not
 pub fn dir(folder_path: &str) { println!("{folder_path}") }
 
-// Error handling
-#[derive(Debug, Error)]
-pub enum RunnerError {
-    #[error("Failed to build client")]
-    RequestError(#[from] reqwest::Error),
-    #[error("IO Error")]
-    IOError(#[from] std::io::Error),
-}
-
+// // Error handling
+// #[derive(Debug, Error)]
+// pub enum RunnerError {
+//     #[error("Failed to build client")]
+//     RequestError(#[from] reqwest::Error),
+//     #[error("IO Error")]
+//     IOError(#[from] std::io::Error),
+// }
+//
