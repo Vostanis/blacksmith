@@ -2,21 +2,21 @@ use proc_macro::{TokenStream, TokenTree, Punct, Literal};
 use quote::quote;
 use syn::{parse_str, ItemFn, Expr};
 use serde::{Serialize, Deserialize};
-//
-// #[proc_macro_attribute]
-// pub fn header2(attr: TokenStream, item: TokenStream) -> TokenStream {
-//     let header: String = { 
-//         let mut attrs_iter = attrs.into_iter();
-//         let name = expect_literal(&mut attrs_iter).to_string();
-//         let _ = expect_punct(&mut attrs_iter, ',');
-//         let value = expect_literal(&mut attrs_iter).to_string();
-//         format!(".header({}, {})", name, value)
-//     };
-//  
-//     println!("{item:?}");
-//     item
-// }
-//
+
+#[proc_macro_attribute]
+pub fn header2(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let header: String = { 
+        let mut attrs_iter = attr.into_iter();
+        let name = expect_literal(&mut attrs_iter).to_string();
+        let _ = expect_punct(&mut attrs_iter, ',');
+        let value = expect_literal(&mut attrs_iter).to_string();
+        format!(".header({}, {})", name, value)
+    };
+ 
+    println!("{item:#?}");
+    item
+}
+
 
 
 

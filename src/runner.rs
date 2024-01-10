@@ -1,5 +1,3 @@
-// use thiserror::Error;
-
 pub struct Runner {
     pub client_builder: reqwest::ClientBuilder,
     pub headers: reqwest::header::HeaderMap,
@@ -35,6 +33,7 @@ impl Runner {
                     Ok(resp) => {
                         match resp.bytes().await {
                             Ok(bytes) => {
+                                println!("downloading file: {url}");
                                 Runner::download_url(url, bytes, save_path).await;
                             },
                             Err(_) => eprintln!("Failed to retrieve byte: {url}")
@@ -65,7 +64,25 @@ impl Runner {
 // ensure a directory exists; create it if not
 pub fn dir(folder_path: &str) { println!("{folder_path}") }
 
+// #[header("User-Agent", "kimonvostanis@gmail.com")] -- does this work??
+#[macro_export]
+macro_rules! get {
+    // declare runner and run
+    ($urls:ident, $path:literal, $threads:literal) => {
+        let runner = Runner::new();
+        runner.get_vec($urls, $path, $threads);
+    };
+
+    // // second iteration, with a proc_macro establishing a headermap
+    // ($urls:ident, $path:literal, $threads:literal, $headers:ident) => {
+    //     let runner = Runner::new();
+    //     // header_map
+    //     runner.get_vec($urls, $path, $threads);
+    // }
+}
+
 // // Error handling
+// use thiserror::Error
 // #[derive(Debug, Error)]
 // pub enum RunnerError {
 //     #[error("Failed to build client")]
