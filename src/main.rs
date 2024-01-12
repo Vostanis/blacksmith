@@ -1,14 +1,13 @@
 #![feature(proc_macro_hygiene)]
+#![feature(stmt_expr_attributes)]
 #[allow(dead_code)]
 #[allow(unused_imports)]
 
+use blacksmith_macros::*;
 use blacksmith::{
-    get,
+    // get,
     runner::Runner,
 };
-// use blacksmith::get;
-// use blacksmith::runner::*;
-use blacksmith_macros::*;
 
 #[tokio::main]
 async fn main() { 
@@ -19,8 +18,11 @@ async fn main() {
     ];
 
     let runner = Runner::new();
+
+    #[header2("this", "that")]
+    #[header2("THIS", "THAT")]
     runner.get_vec(urls.clone(), "./dump", 1).await;
 
     // #[header2("this", "that")]
-    get!(urls, "./src", 3); // needs await here 
+    // get!(urls, "./src", 3); // needs await here 
 }
