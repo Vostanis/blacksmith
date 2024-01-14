@@ -1,7 +1,6 @@
-use blacksmith_macros::collect;
+// use blacksmith_macros::collect;
 use futures::StreamExt;
 
-#[collect]
 pub async fn get_vec(urls: Vec<&str>, save_path: &str, threads: usize) {
     let client = reqwest::Client::new();
     futures::stream::iter(urls.into_iter().map(|url| {
@@ -27,7 +26,6 @@ pub async fn get_vec(urls: Vec<&str>, save_path: &str, threads: usize) {
     .await;
 }
 
-#[collect]
 pub async fn download_url_file(url: &str, bytes: bytes::Bytes, save_path: &str) {
     if let Some(file) = std::path::Path::new(&url).file_name() {
         let file_path = std::path::Path::new(save_path).join(file);

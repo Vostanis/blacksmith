@@ -1,5 +1,6 @@
 pub mod get_vec;
 
+pub mod runner;
 
 pub mod fs {
 
@@ -33,15 +34,11 @@ pub mod fs {
     }
 }
 
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use blacksmith_macros::collect;
-
-    #[collect]
-    fn did_this_collect() {
-        ">>>>>>>>>> THIS HAS COLLECTED <<<<<<<<<<<"
-    }
 
     #[tokio::test]
     async fn random_response() {
