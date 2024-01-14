@@ -1,6 +1,10 @@
 target/
 blacksmith_macros/target/
+<<<<<<< HEAD
 
 dump/
 src/company_tickers.json
 /collected_fns.json
+=======
+dump/
+>>>>>>> 1e27c91 (commit error clean up)

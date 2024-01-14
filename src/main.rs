@@ -3,11 +3,8 @@
 #[allow(dead_code)]
 #[allow(unused_imports)]
 
-use blacksmith_macros::*;
-use blacksmith::{
-    // get,
-    runner::Runner,
-};
+use blacksmith_macros::header;
+use blacksmith::runner::Runner;
 
 #[tokio::main]
 async fn main() { 
@@ -21,10 +18,7 @@ async fn main() {
 
     let mut runner = Runner::new();
 
-    #[header("this", "that")]
-    #[header("THIS", "THAT")]
+    #[header("User-Agent", "example@example_domain.com")]
+    #[header("API-Token", "XXXXXXXXX")]
     runner.get_vec(urls, save_path, threads).await;
-
-    // #[header2("this", "that")]
-    // get!(urls, "./src", 3); // needs await here 
 }

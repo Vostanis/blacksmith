@@ -1,19 +1,18 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{
-    parse_macro_input, 
-    Token,
-    parenthesized,
-    Lit, Ident, Type, Attribute,
-    parse::{ParseStream, Parse, Result},
-    punctuated::Punctuated,
-};
+use syn::{Attribute, Lit, Ident, Type, parenthesized, parse::{ParseStream, Parse, Result}, parse_macro_input, punctuated::Punctuated, Token};
 
-/// Example use:
-///
-///     #[header($NAME, $VALUE)]
-///     $IDENT.get_vec($URLS, $SAVE_PATH, $THREADS).await;
-///
+//// EXAMPLE
+////     #[header($NAME, $VALUE)]
+////     $IDENT.get_vec($URLS, $SAVE_PATH, $THREADS).await;
+////
+//// METHOD
+////    After parsing, reprint the "ident.get_vec(...).await;" item, now
+////    surrounded by .insert(...) and .remove(...) (respectively).
+////    These insert/remove to/from the HeaderMap; 
+////    one of the elements of the Runner struct.
+////
+
 #[proc_macro_attribute]
 pub fn header(attr: TokenStream, item: TokenStream) -> TokenStream {
 
@@ -29,9 +28,8 @@ pub fn header(attr: TokenStream, item: TokenStream) -> TokenStream {
     let ident = &expr.ident;
     println!("{:#?}", &expr.ident);
 
-    let item2 = parse_macro_input!(item as syn::Expr);
-    // println!("{item2}");
     // 3. insert & remove the header, surrounding the fn_call respectively
+    let item2 = parse_macro_input!(item as syn::Expr);
     quote! {
         #ident.headers.insert(#name, reqwest::header::HeaderValue::from_static(#value));
         #item2;
@@ -93,6 +91,13 @@ impl Args {
         else { panic!("expected 2 arguments") }
     }
 }
+
+//// TO DO!
+////    Below is workings for TypeExt, to allow .get() to use both Idents & Lits
+////    Currently, only Ident is under the "Type::parse".
+////    However, below encounters a buffer overflow.
+////    Maybe there is an example somewhere this covers, e.g. within syn git or rust docs
+//// 
 
 // #[derive(Debug, Clone)]
 // enum TypeExt {
