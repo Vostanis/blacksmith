@@ -1,4 +1,4 @@
-get_vec() allows for async get requests of urls in a Vec<&str> form, e.g.
+# GET_VEC
 
 The get_vec(...) method allows for async get requests of urls in a Vec<&str> form, e.g.    
 
