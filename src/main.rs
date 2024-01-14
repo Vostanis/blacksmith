@@ -16,12 +16,14 @@ async fn main() {
         "https://ww.sec.gov/files/company_tickers.json",
         "https://www.sec.gov/files/company_tickers.json",
     ];
+    let save_path = "./dump";
+    let threads = 1;
 
-    let runner = Runner::new();
+    let mut runner = Runner::new();
 
-    #[header2("this", "that")]
-    #[header2("THIS", "THAT")]
-    runner.get_vec(urls.clone(), "./dump", 1).await;
+    #[header("this", "that")]
+    #[header("THIS", "THAT")]
+    runner.get_vec(urls, save_path, threads).await;
 
     // #[header2("this", "that")]
     // get!(urls, "./src", 3); // needs await here 
