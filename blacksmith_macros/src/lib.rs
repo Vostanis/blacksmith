@@ -50,7 +50,7 @@ impl Parse for MethodCall {
         let _attrs: Vec<Attribute> = input.call(Attribute::parse_outer)?;
         let ident: Ident = input.parse()?;
         input.parse::<Token![.]>()?;
-        let _expr_ident = input.parse()?;
+       let _expr_ident = input.parse()?;
         let content; parenthesized!(content in input);
         let _param = content.parse_terminated(Type::parse, Token![,])?; // This needs to Lit::parse or Type::parse
         input.parse::<Token![.]>()?;

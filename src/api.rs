@@ -1,22 +1,25 @@
 #[derive(Debug)]
-pub struct Runner {
+pub struct API {
     pub client_builder: reqwest::ClientBuilder,
     pub headers: reqwest::header::HeaderMap,
+    pub threads: u16,
+    // pub requests_per_second: u16,
 }
 
-impl Runner {
+impl API {
     pub fn new() -> Self {
-        Runner {
+        API {
             client_builder: reqwest::ClientBuilder::new(),
             headers: reqwest::header::HeaderMap::new(),
+            threads: 1,
+            // requests_per_second: 100,
         }
     }
 
     pub async fn get_vec(
         &self, 
         urls: Vec<&str>, 
-        save_path: &str, 
-        threads:usize
+        save_path: &str
     ) {
         use futures::StreamExt;
 
@@ -44,7 +47,7 @@ impl Runner {
                 }
             }
         }))
-        .buffer_unordered(threads)
+        .buffer_unordered(&self.threads)
         .collect::<Vec<()>>()
         .await;
     } 
@@ -62,28 +65,9 @@ impl Runner {
     }
 }
 
-//// TO DO
-////    get!(), where runner is instantiated within the call
-////    and proc_macros used to customise.
-////    
-//// EXAMPLE
-////    #[header(...)]
-////    #[threads(n)]
-////    get!(urls, save_path);
-////
-
-// #[macro_export]
-// macro_rules! get {
-//     // declare runner and run
-//     ($urls:ident, $path:literal, $threads:literal) => {
-//         let runner = Runner::new();
-//         runner.get_vec($urls, $path, $threads);
-//     };
-
-//     // // second iteration, with a proc_macro establishing a headermap
-//     // ($urls:ident, $path:literal, $threads:literal, $headers:ident) => {
-//     //     let runner = Runner::new();
-//     //     // header_map
-//     //     runner.get_vec($urls, $path, $threads);
-//     // }
-// }
+macro_rules! download {
+    ($urls:ident, $path:literal) => {
+        let mut api = API::new();
+        api.get_vec($urls, $path).await;
+    };
+}
