@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{Attribute, Lit, Ident, Type, parenthesized, parse::{ParseStream, Parse, Result}, parse_macro_input, punctuated::Punctuated, Token};
+use syn::{Attribute, Lit, LitInt, Ident, Type, parenthesized, parse::{ParseStream, Parse, Result}, parse_macro_input, punctuated::Punctuated, Token};
 
 //// EXAMPLE
 ////     #[header($NAME, $VALUE)]
@@ -20,13 +20,11 @@ pub fn header(attr: TokenStream, item: TokenStream) -> TokenStream {
     let args = Args::return_vec_of_2(parse_macro_input!(attr as Args));
     let name = &args[0];
     let value = &args[1];
-    println!("{:?}, {:?}", name, value);
 
     // 2. find identity of method call
     let item_clone = item.clone();
     let expr = parse_macro_input!(item_clone as MethodCall);
     let ident = &expr.ident;
-    println!("{:#?}", &expr.ident);
 
     // 3. insert & remove the header, surrounding the fn_call respectively
     let item2 = parse_macro_input!(item as syn::Expr);
@@ -34,6 +32,30 @@ pub fn header(attr: TokenStream, item: TokenStream) -> TokenStream {
         #ident.headers.insert(#name, reqwest::header::HeaderValue::from_static(#value));
         #item2;
         #ident.headers.remove(#name);
+    }.into()
+}
+
+//// EXAMPLE
+////     #[threads($LITERAL_INT)]
+////     $IDENT.get_vec($URLS, $SAVE_PATH).await;
+////
+
+#[proc_macro_attribute]
+pub fn threads(attr: TokenStream, item: TokenStream) -> TokenStream {
+
+    // 1. ensure 1 integer
+    let args = parse_macro_input!(attr as LitInt);
+
+    // 2. find identity of method call
+    let item_clone = item.clone();
+    let expr = parse_macro_input!(item_clone as MethodCall);
+    let ident = &expr.ident;
+
+    // 3. insert & remove the header, surrounding the fn_call respectively
+    let item2 = parse_macro_input!(item as syn::Expr);
+    quote! {
+        #ident.threads = #args;
+        #item2;
     }.into()
 }
 

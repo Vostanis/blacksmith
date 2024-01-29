@@ -1,21 +1,46 @@
+/////////////////////////////////////////////////////////////////////
+///
+/// The API Struct
+/// ==============
+///
+/// API is technically an APIBuilder; modelling the elements
+/// required to execute an API on, rather than the API call itself.
+///
+/// Naming is done for convention, and elements are designed as such
+/// to make macro calls (functional or procedural) are for convention,
+/// too.
+///
 #[derive(Debug)]
 pub struct API {
     pub client_builder: reqwest::ClientBuilder,
     pub headers: reqwest::header::HeaderMap,
-    pub threads: u16,
-    // pub requests_per_second: u16,
+    pub threads: usize,
+    pub requests_per_second: u16,
 }
 
 impl API {
+
+    ///////////////////////////////////////////////////////////
+    /// Builds an api with a default config, i.e.,
+    /// single-threaded, with a max capacity of 
+    /// 1000 requests per second (designed to be infeasible).
+    ///
     pub fn new() -> Self {
-        API {
+            API {
             client_builder: reqwest::ClientBuilder::new(),
             headers: reqwest::header::HeaderMap::new(),
             threads: 1,
-            // requests_per_second: 100,
+            requests_per_second: 1000,
         }
     }
 
+    ///////////////////////////////////////////////////////////
+    /// Iterate over a vector of endpoints (&str or String),
+    /// and download their contents, as with bytes, to a
+    /// specified $FILE_PATH.
+    ///
+    /// TODO!: Trait with generic type defn needed
+    ///
     pub async fn get_vec(
         &self, 
         urls: Vec<&str>, 
@@ -26,32 +51,38 @@ impl API {
         let client = reqwest::ClientBuilder::new()
             .default_headers(self.headers.clone())
             .build()
-            .expect("Failed to build client");
+            .expect("failed to build client");
 
         futures::stream::iter(urls.into_iter().map(|url| {
             let future = client
                 .get(url)
                 .send();
+
             async move {
                 match future.await {
                     Ok(resp) => {
                         match resp.bytes().await {
                             Ok(bytes) => {
                                 println!("downloading file: {url}");
-                                Runner::download_url(url, bytes, save_path).await;
+                                API::download_url(url, bytes, save_path).await;
                             },
-                            Err(_) => eprintln!("Failed to retrieve byte: {url}")
+                            Err(_) => eprintln!("failed to retrieve bytes: {url}")
                         }
                     },
-                    Err(_) => eprintln!("Failed to retrieve response: {url}"),
+                    Err(_) => eprintln!("failed to retrieve response: {url}"),
                 }
             }
         }))
-        .buffer_unordered(&self.threads)
+        .buffer_unordered(self.threads)
         .collect::<Vec<()>>()
         .await;
     } 
 
+    ///////////////////////////////////////////////////////////
+    /// Take a URL name, the bytes recieved, and a file path.
+    /// Downlad the file to the a file path, using a 
+    /// derived file name.
+    ///
     pub async fn download_url(
         url: &str, 
         bytes: bytes::Bytes, 
@@ -65,9 +96,13 @@ impl API {
     }
 }
 
-macro_rules! download {
-    ($urls:ident, $path:literal) => {
-        let mut api = API::new();
-        api.get_vec($urls, $path).await;
-    };
-}
+ 
+ 
+///////////////////////////////////////////////////////////////////////////////
+/// TODO!: Ease of use functional macros
+// macro_rules! download {
+//     ($urls:ident, $path:literal) => {
+//         let mut download_from_api = API::new();
+//         download_from_api.get_vec($urls, $path).await;
+//     };
+// }
