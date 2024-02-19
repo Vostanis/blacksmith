@@ -35,13 +35,13 @@ pub fn header(attr: TokenStream, item: TokenStream) -> TokenStream {
     }.into()
 }
 
-//// EXAMPLE
-////     #[threads($LITERAL_INT)]
-////     $IDENT.get_vec($URLS, $SAVE_PATH).await;
-////
+// EXAMPLE
+//     #[threads($LITERAL_INT)]
+//     $IDENT.get_vec($URLS, $SAVE_PATH).await;
+//
 
 #[proc_macro_attribute]
-pub fn threads(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn requests(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     // 1. ensure 1 integer
     let args = parse_macro_input!(attr as LitInt);
@@ -51,10 +51,29 @@ pub fn threads(attr: TokenStream, item: TokenStream) -> TokenStream {
     let expr = parse_macro_input!(item_clone as MethodCall);
     let ident = &expr.ident;
 
-    // 3. insert & remove the header, surrounding the fn_call respectively
+    // 3. change requests n of API struct
     let item2 = parse_macro_input!(item as syn::Expr);
     quote! {
-        #ident.threads = #args;
+        #ident.n = #args;
+        #item2;
+    }.into()
+}
+
+#[proc_macro_attribute]
+pub fn seconds(attr: TokenStream, item: TokenStream) -> TokenStream {
+
+    // 1. ensure 1 integer
+    let args = parse_macro_input!(attr as LitInt);
+
+    // 2. find identity of method call
+    let item_clone = item.clone();
+    let expr = parse_macro_input!(item_clone as MethodCall);
+    let ident = &expr.ident;
+
+    // 3. change time t of API struct
+    let item2 = parse_macro_input!(item as syn::Expr);
+    quote! {
+        #ident.t = #args;
         #item2;
     }.into()
 }

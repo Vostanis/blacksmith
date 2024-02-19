@@ -5,11 +5,12 @@
 
 use blacksmith::api::API;
 use blacksmith_macros::{
-    header, 
-    threads
+    header,
+    requests,
+    seconds
 };
 
-const DATA_PATH: &str = "./src";
+const DATA_PATH: &str = "./data";
 
 #[tokio::main]
 async fn main() { 
@@ -20,11 +21,27 @@ async fn main() {
         "https://www.sec.gov/files/company_tickers.json",
         "https://ww.sec.gov/files/company_tickers.json",
         "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
     ];
 
-    #[threads(1)]
     #[header("User-Agent", "example@example_domain.com")]
     #[header("API-Token", "XXXXXXXXX")]
+    #[requests(3)]
+    #[seconds(2)]
     api.get_vec(urls, DATA_PATH).await;
 
     // function macro
