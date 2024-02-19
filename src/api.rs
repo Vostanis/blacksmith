@@ -4,7 +4,6 @@ use std::fmt::{Debug, Display};
 use tokio::time::{sleep, Duration};
 
 /////////////////////////////////////////////////////////////////////
-///
 /// API is technically an APIBuilder, modelling the elements
 /// required to execute an API on, rather than the API call itself.
 ///
