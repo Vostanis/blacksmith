@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{Attribute, Lit, Ident, Type, parenthesized, parse::{ParseStream, Parse, Result}, parse_macro_input, punctuated::Punctuated, Token};
+use syn::{Attribute, Lit, LitInt, Ident, Type, parenthesized, parse::{ParseStream, Parse, Result}, parse_macro_input, punctuated::Punctuated, Token};
 
 //// EXAMPLE
 ////     #[header($NAME, $VALUE)]
@@ -20,13 +20,11 @@ pub fn header(attr: TokenStream, item: TokenStream) -> TokenStream {
     let args = Args::return_vec_of_2(parse_macro_input!(attr as Args));
     let name = &args[0];
     let value = &args[1];
-    println!("{:?}, {:?}", name, value);
 
     // 2. find identity of method call
     let item_clone = item.clone();
     let expr = parse_macro_input!(item_clone as MethodCall);
     let ident = &expr.ident;
-    println!("{:#?}", &expr.ident);
 
     // 3. insert & remove the header, surrounding the fn_call respectively
     let item2 = parse_macro_input!(item as syn::Expr);
@@ -34,6 +32,49 @@ pub fn header(attr: TokenStream, item: TokenStream) -> TokenStream {
         #ident.headers.insert(#name, reqwest::header::HeaderValue::from_static(#value));
         #item2;
         #ident.headers.remove(#name);
+    }.into()
+}
+
+// EXAMPLE
+//     #[threads($LITERAL_INT)]
+//     $IDENT.get_vec($URLS, $SAVE_PATH).await;
+//
+
+#[proc_macro_attribute]
+pub fn requests(attr: TokenStream, item: TokenStream) -> TokenStream {
+
+    // 1. ensure 1 integer
+    let args = parse_macro_input!(attr as LitInt);
+
+    // 2. find identity of method call
+    let item_clone = item.clone();
+    let expr = parse_macro_input!(item_clone as MethodCall);
+    let ident = &expr.ident;
+
+    // 3. change requests n of API struct
+    let item2 = parse_macro_input!(item as syn::Expr);
+    quote! {
+        #ident.n = #args;
+        #item2;
+    }.into()
+}
+
+#[proc_macro_attribute]
+pub fn seconds(attr: TokenStream, item: TokenStream) -> TokenStream {
+
+    // 1. ensure 1 integer
+    let args = parse_macro_input!(attr as LitInt);
+
+    // 2. find identity of method call
+    let item_clone = item.clone();
+    let expr = parse_macro_input!(item_clone as MethodCall);
+    let ident = &expr.ident;
+
+    // 3. change time t of API struct
+    let item2 = parse_macro_input!(item as syn::Expr);
+    quote! {
+        #ident.t = #args;
+        #item2;
     }.into()
 }
 
@@ -50,7 +91,7 @@ impl Parse for MethodCall {
         let _attrs: Vec<Attribute> = input.call(Attribute::parse_outer)?;
         let ident: Ident = input.parse()?;
         input.parse::<Token![.]>()?;
-        let _expr_ident = input.parse()?;
+       let _expr_ident = input.parse()?;
         let content; parenthesized!(content in input);
         let _param = content.parse_terminated(Type::parse, Token![,])?; // This needs to Lit::parse or Type::parse
         input.parse::<Token![.]>()?;

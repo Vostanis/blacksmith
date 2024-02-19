@@ -3,22 +3,54 @@
 #[allow(dead_code)]
 #[allow(unused_imports)]
 
-use blacksmith_macros::header;
-use blacksmith::runner::Runner;
+use blacksmith::{api, download, api::API};
+use blacksmith_macros::{
+    header,
+    requests,
+    seconds
+};
+
+const DATA_PATH: &str = "./data";
 
 #[tokio::main]
 async fn main() { 
+
+    let mut api = API::new();
+
     let urls = vec![
         "https://www.sec.gov/files/company_tickers.json",
         "https://ww.sec.gov/files/company_tickers.json",
         "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
     ];
-    let save_path = "./dump";
-    let threads = 1;
-
-    let mut runner = Runner::new();
 
     #[header("User-Agent", "example@example_domain.com")]
     #[header("API-Token", "XXXXXXXXX")]
-    runner.get_vec(urls, save_path, threads).await;
+    #[requests(3)]
+    #[seconds(2)]
+    api.get_vec(urls, DATA_PATH).await;
+
+
+    // function example
+    api!();
+
+    #[requests(30)]
+    #[seconds(3)]
+    #[header("User-Agent", "example@example_domain.com")]
+    #[header("API-Token", "XXXXXXXXX")]
+    download!(urls, "./data");
 }
