@@ -3,7 +3,7 @@
 #[allow(dead_code)]
 #[allow(unused_imports)]
 
-use blacksmith::{api, download, api::API};
+use blacksmith::api::API;
 use blacksmith_macros::{
     header,
     requests,
