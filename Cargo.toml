@@ -1,6 +1,6 @@
 [package]
 name = "blacksmith"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Kimon Vostanis <kimonvostanis@gmail.com>"]
 description = "Building-block functions for async systems"
