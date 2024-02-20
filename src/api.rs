@@ -106,29 +106,29 @@ impl API {
 }
 
 ////////////////////////////////////////////////////////////////
-/// Below are functional macros used for a default setup
-///
-/// e.g., 
-///
-/// fn main() {
-///     api!();
-///
-///     let urls = vec![
-///         "endpoint1.com/api/some_file.json",
-///         "endpoint2.com/api-1/another_file.xml",
-///     ];
-///
-///     #[header("User-Agent", "email_example@example.com")]
-///     #[requests(5)]
-///     #[seconds(10)]
-///     download!(urls);
-/// }
-/// 
-///
-/// api!() simply spawns a mutable api with a
-/// standardised, default name for the other
-/// function macros to call
-/// 
+// Below are functional macros used for a default setup
+//
+// e.g., 
+//
+// fn main() {
+//     api!();
+//
+//     let urls = vec![
+//         "endpoint1.com/api/some_file.json",
+//         "endpoint2.com/api-1/another_file.xml",
+//     ];
+//
+//     #[header("User-Agent", "email_example@example.com")]
+//     #[requests(5)]
+//     #[seconds(10)]
+//     download!(urls);
+// }
+// 
+//
+// api!() simply spawns a mutable api with a
+// standardised, default name for the other
+// function macros to call
+// 
 // #[macro_export]
 // macro_rules! api {
 //     () => {
