@@ -43,14 +43,4 @@ async fn main() {
     #[requests(3)]
     #[seconds(2)]
     api.get_vec(urls, DATA_PATH).await;
-
-
-    // function example
-    api!();
-
-    #[requests(30)]
-    #[seconds(3)]
-    #[header("User-Agent", "example@example_domain.com")]
-    #[header("API-Token", "XXXXXXXXX")]
-    download!(urls, "./data");
 }
