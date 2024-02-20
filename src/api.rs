@@ -1,7 +1,10 @@
 use anyhow::Result;
 use futures::{join, StreamExt};
-// use std::fmt::{Debug, Display};
+use std::fmt::{Debug, Display};
+use std::convert::AsRef;
+use std::ffi::OsStr;
 use tokio::time::{sleep, Duration};
+use reqwest::IntoUrl;
 
 /////////////////////////////////////////////////////////////////////
 /// API is technically an APIBuilder, modelling the elements
@@ -39,7 +42,10 @@ impl API {
     /// and download their contents, as bytes, to a
     /// specified $FILE_PATH.
     ///
-    pub async fn get_vec(&self, urls: Vec<&str>, dir: &str) -> Result<()> {
+    pub async fn get_vec<T>(&self, urls: Vec<T>, dir: &str) -> Result<()> 
+    where
+        T: Debug + Display + AsRef<OsStr>,
+    {
 
         let mut count = 0;
         let mut x = 0;
@@ -92,11 +98,10 @@ impl API {
     /// Downlad the file to the a file path, using a 
     /// derived file name.
     ///
-    pub async fn write(
-        url: &str, 
-        bytes: bytes::Bytes, 
-        dir: &str
-    ) {
+    pub async fn write<T>(url: T, bytes: bytes::Bytes, dir: &str) -> ()
+    where
+        T: Debug + Display + AsRef<OsStr>
+    {
         let file_name = std::path::Path::new(&url)
             .file_name()
             .expect("failed to retrieve a file name");
