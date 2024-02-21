@@ -15,7 +15,7 @@ const DATA_PATH: &str = "./data";
 #[tokio::main]
 async fn main() { 
 
-    let mut api = API::new();
+    let mut api = API::new(1, 1);
 
     let urls = vec![
         String::from("https://www.sec.gov/files/company_tickers.json"),
