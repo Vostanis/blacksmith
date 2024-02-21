@@ -9,6 +9,8 @@ use blacksmith_macros::{
     requests,
     seconds
 };
+use std::collections::HashMap;
+use reqwest::header::HeaderValue;
 
 const DATA_PATH: &str = "./data";
 
@@ -16,31 +18,40 @@ const DATA_PATH: &str = "./data";
 async fn main() { 
 
     let mut api = API::new(1, 1);
+    api.requests = 3;
+    api.seconds = 1;
+    api.headers.insert(
+        "User-Agent", HeaderValue::from_str("example@example_domain.com").expect("HEADER SHOULD HAVE HEADER'D")
+    );
 
     let urls = vec![
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://ww.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://ww.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://ww.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://ww.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://ww.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
-        String::from("https://ww.sec.gov/files/company_tickers.json"),
-        String::from("https://www.sec.gov/files/company_tickers.json"),
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
+        "https://ww.sec.gov/files/company_tickers.json",
+        "https://www.sec.gov/files/company_tickers.json",
     ];
 
-    #[header("User-Agent", "example@example_domain.com")]
-    #[header("API-Token", "XXXXXXXXX")]
-    #[requests(3)]
-    #[seconds(2)]
-    api.get_vec(urls, DATA_PATH).await;
+    let rename_map = HashMap::from([
+        ("https://www.sec.gov/files/company_tickers.json", "beepbbop.txt"),
+    ]);
+
+    // #[header("User-Agent", "example@example_domain.com")]
+    // #[header("API-Token", "XXXXXXXXX")]
+    // #[requests(3)]
+    // #[seconds(2)]
+    let _ = api.get_vec(urls, "./data", Some(rename_map)).await;
 }
