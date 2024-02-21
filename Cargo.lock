@@ -1065,6 +1065,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "spamming_sec"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "blacksmith",
+ "blacksmith_macros",
+ "bytes",
+ "futures",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "zip-extract",
+]
+
+[[package]]
 name = "subtle"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

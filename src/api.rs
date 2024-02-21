@@ -1,10 +1,14 @@
 use anyhow::Result;
 use futures::{join, StreamExt};
-use std::fmt::{Debug, Display};
-use std::convert::AsRef;
-use std::ffi::OsStr;
 use tokio::time::{sleep, Duration};
-use reqwest::IntoUrl;
+
+use std::{
+    convert::AsRef,
+    collections::HashMap,
+    ffi::OsStr,
+    fmt::{Debug, Display},
+    hash::Hash,
+};
 
 /////////////////////////////////////////////////////////////////////
 /// API is technically an APIBuilder, modelling the elements
@@ -17,8 +21,16 @@ use reqwest::IntoUrl;
 pub struct API {
     pub client_builder: reqwest::ClientBuilder,
     pub headers: reqwest::header::HeaderMap,
-    pub n: usize,
-    pub t: u64,
+    pub requests: usize,
+    pub seconds: u64,
+}
+
+type Input = dyn AsRef<OsStr>;
+type Endpoints = HashMap<Input, Input>;
+
+#[macro_export]
+macro_rules! urls {
+    ()
 }
 
 impl API {
@@ -28,12 +40,12 @@ impl API {
     /// i.e., single-threaded, with a max capacity of 
     /// 1000 requests per second.
     ///
-    pub fn new() -> Self {
+    pub fn new(requests: usize, seconds: u64) -> Self {
         API {
             client_builder: reqwest::ClientBuilder::new(),
             headers: reqwest::header::HeaderMap::new(),
-            n: 1,
-            t: 1,
+            requests: requests,
+            seconds: seconds,
         }
     }
 
@@ -42,21 +54,20 @@ impl API {
     /// and download their contents, as bytes, to a
     /// specified $FILE_PATH.
     ///
-    pub async fn get_vec<T>(&self, urls: Vec<T>, dir: &str) -> Result<()> 
+    pub async fn get_vec<T>(&self, urls: Vec<T>, dir: &str, file_names: Option<HashMap<T, T>>) -> Result<()> 
     where
         T: Debug + Display + AsRef<OsStr>,
     {
-
         let mut count = 0;
         let mut x = 0;
         let mut y = 0;
         while y < urls.len() {
 
-            let timer = async { sleep(Duration::from_secs(self.t)).await; };
+            let timer = async { sleep(Duration::from_secs(self.seconds)).await; };
     
             let iter = async {
-                x = count * self.n;
-                y = count * self.n + self.n;
+                x = count * self.requests;
+                y = count * self.requests + self.requests;
                 let slice = &urls[x..y];
                 let client = reqwest::ClientBuilder::new()
                     .default_headers(self.headers.clone())
@@ -73,7 +84,7 @@ impl API {
                         match future.await {
                             Ok(resp) => {
                                 match resp.bytes().await {
-                                    Ok(bytes) => API::write(url, bytes, dir).await,
+                                    Ok(bytes) => API::write(url, bytes, dir, file_names).await,
                                     Err(_) => eprintln!("failed to download {url:#?}"),
                                 }
                             },
@@ -81,7 +92,7 @@ impl API {
                         }
                     }
                 }))
-                .buffer_unordered(self.n)
+                .buffer_unordered(self.requests)
                 .collect::<Vec<()>>()
                 .await;
             };
@@ -98,15 +109,23 @@ impl API {
     /// Downlad the file to the a file path, using a 
     /// derived file name.
     ///
-    pub async fn write<T>(url: T, bytes: bytes::Bytes, dir: &str) -> ()
+    pub async fn write<T>(url: T, bytes: bytes::Bytes, dir: &str, file_names: Option<HashMap<T, T>>) -> ()
     where
-        T: Debug + Display + AsRef<OsStr>
+        T: Debug + Display + AsRef<OsStr> + Eq + PartialEq + Hash
     {
-        let file_name = std::path::Path::new(&url)
-            .file_name()
-            .expect("failed to retrieve a file name");
-        let file_path = std::path::Path::new(dir).join(file_name);
-        let _ = tokio::fs::write(&file_path, bytes).await;
+        if let Some(names) = file_names {
+            let file_name = names.get(&url)
+                .expect("File name found")
+                .to_string();
+            let file_path = std::path::Path::new(dir).join(file_name);
+            let _ = tokio::fs::write(&file_path, bytes).await;
+        } else {
+            let file_name = std::path::Path::new(&url)
+                .file_name()
+                .expect("failed to retrieve a file name");
+            let file_path = std::path::Path::new(dir).join(file_name);
+            let _ = tokio::fs::write(&file_path, bytes).await;
+        }
     }
 }
 
