@@ -9,7 +9,7 @@ use reqwest::header::HeaderValue;
 
 #[tokio::main]
 async fn main() { 
-
+  
     // config
     let mut api = API::new();
     api.requests = 3;

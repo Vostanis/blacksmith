@@ -31,7 +31,7 @@ impl API {
     /// i.e., single-threaded with a max capacity of 
     /// 1000 requests per second.
     ///
-    pub fn new() -> Self {
+    pub fn new(requests: usize, seconds: u64) -> Self {
         API {
             client_builder: reqwest::ClientBuilder::new(),
             headers: reqwest::header::HeaderMap::new(),
@@ -50,8 +50,8 @@ impl API {
         urls: Vec<String>, 
         dir: &str, 
         name_map: Option<HashMap<String, String>>
-    ) -> Result<()> 
-    {
+    ) -> Result<()> {
+      
         let mut count = 0;
         let mut x = 0;
         let mut y = 0;
